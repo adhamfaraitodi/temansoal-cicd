@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  accounts      Account[]
+  sessions      Session[]
+  SoalTersimpan SoalTersimpan[]
+  SoalDibuat    SoalDibuat[]
+  Transaction   Transaction[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model SoalTersimpan {
+  id         String   @id @default(cuid())
+  soal       String   @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  userId     String   @db.VarChar(255)
+  jawaban    String   @db.Text
+  mapel      String   @db.VarChar(255)
+  pilihan    Json?
+  pembahasan String   @db.Text
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model SoalDibuat {
+  id        String   @id @default(cuid())
+  total     Int
+  isPremium Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  userId    String   @db.VarChar(255)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Package {
+  id          String        @id @default(cuid())
+  name        String        @db.VarChar(255)
+  code        String        @db.VarChar(255)
+  price       Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt
+  expireTime  Int           @default(0)
+  Transaction Transaction[]
+}
+
+model Transaction {
+  id           String            @id
+  amount       Int
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @default(now()) @updatedAt
+  userId       String            @db.VarChar(255)
+  status       TransactionStatus @default(pending)
+  gross_amount Int
+  payment_type String            @db.VarChar(255)
+  is_active    Boolean           @default(false)
+  expired_at   DateTime?         @db.DateTime(0)
+  packageId    String            @db.VarChar(255)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  package      Package           @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([packageId])
+}
+
+enum TransactionStatus {
+  authorize
+  capture
+  settlement
+  deny
+  pending
+  cancel
+  refund
+  partial_refund
+  chargeback
+  partial_chargeback
+  expire
+  failure
+}
