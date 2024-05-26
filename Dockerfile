@@ -13,14 +13,8 @@ RUN npm install
 # Copy the rest of your application code to the container
 COPY . .
 
-# Migrate database ORM PRISMA
-RUN npx prisma migrate dev
-
-# Build your Next.js app
-RUN npm run build
-
 # Expose the port that your Next.js app will run on
-EXPOSE 4000
+EXPOSE 3000
 
 # Start your Next.js app
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "dev"]
