@@ -1,20 +1,9 @@
-# Use the official Node.js image as the base image
-FROM node:14
-
-# Set the working directory inside the container
+FROM node:16
 WORKDIR /app
-
-# Copy package.json and package-lock.json to the container
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy the rest of your application code to the container
 COPY . .
-
-# Expose the port that your Next.js app will run on
+RUN npx prisma generate
+RUN npm run build
 EXPOSE 3000
-
-# Start your Next.js app
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
