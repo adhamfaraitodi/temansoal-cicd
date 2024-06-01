@@ -9,8 +9,8 @@ import { useState } from "react"
 import soal from "@/types/soal"
 import { useToast } from "@/components/ui/use-toast"
 import SoalCardSkeleton from "@/components/buatsoal/SoalCardSkeleton"
-import { functions } from "@/services/firebase"
-import { httpsCallable } from "firebase/functions"
+// import { functions } from "@/services/firebase"
+// import { httpsCallable } from "firebase/functions"
 import { getFetcher, postFetcher } from "@/lib/fetcher"
 import { useMutation, useQuery } from "@tanstack/react-query"
 
@@ -61,10 +61,11 @@ const BuatSoal = () => {
         //   dataSoal.mapel = dataInput.mapel
         //   arraySoal.push(dataSoal)
         // }
-        const buatSoal = httpsCallable(functions, "buatsoal", { timeout: 300000 })
-        const res = await buatSoal(dataInput)
-        const dataResult = res.data as { data: soal[]}
-        const dataSoal: soal[] = dataResult.data
+        // const buatSoal = httpsCallable(functions, "buatsoal", { timeout: 300000 })
+        // const res = await buatSoal(dataInput)
+        const res = await postFetcher("/api/buatsoal", dataInput)
+        console.log(res)
+        const dataSoal: soal[] = res
         dataSoal.map((item) => {
           arraySoal.push({
             jawaban: item.jawaban,

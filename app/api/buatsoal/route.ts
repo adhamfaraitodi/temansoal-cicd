@@ -12,15 +12,25 @@ export const runtime = "edge"
 
 export const POST = async (req: Request) => {
   const { mapel, tingkatKesulitan, haveOptions = false, topik = "", jumlahSoal = 1 } = (await req.json()) as generateQuestionForm 
-  const jumlahSoalPrompt = `berikan ${jumlahSoal} soal ujian`
+  const jumlahSoalPrompt = `berikan soal ujian berjumlah ${jumlahSoal} soal,`
   const mapelPrompt = `untuk pelajaran ${mapel},`
-  const tingkatKesulitanPrompt = `untuk ${tingkatKesulitan},`
+  const tingkatKesulitanPrompt = `untuk tingkat ${tingkatKesulitan},`
   const topikPrompt = `dengan topik terkait: ${topik}`
-  const jawabanPrompt = `gunakan format json ${haveOptions ? `{soal:"soal", pilihan:["A,B,C,D,E"], jawaban:"A.jawaban"}` : `{soal:"soal", jawaban:"jawaban"}`}.`
-  const aturanPrompt = `${haveOptions ? "pilihan dan jawaban harus menyertakan huruf(A,B,C,D,E) dalam huruf kapital" : ""}. Jangan tambahkan awalan angka pada setiap soal. Jika terdapat soal cerita yang berhubungan, tuliskan cerita pada setiap soal. Soal cerita minimal 1 paragraf. Berikan soal singkat untuk matematika.`
+  const jawabanPrompt = `gunakan format json ${haveOptions ? `[{soal:"soal", pilihan:[{huruf: (A,B,C,D,E), deskripsi:"deskripsi"}], jawaban:{huruf: (A,B,C,D,E), deskripsi:"deskripsi"}, pembahasan: "pembahasan"}]` : `[{soal:"soal", jawaban:"jawaban", pembahasan: "pembahasan"}]`}.`
+  const aturanPrompt = `${haveOptions ? "pilihan dan jawaban harus menyertakan huruf(A,B,C,D,E) dalam huruf kapital" : ""}. Jangan tambahkan awalan angka pada setiap soal. Jika terdapat soal cerita yang berhubungan, tuliskan cerita pada setiap soal. Jika soal cerita minimal 1 paragraf.`
   const bahasaPrompt = `Gunakan referensi kurikulum di Indonesia.`
-  const jsonPrompt = `Jangan tambahkan penjelasan apapun, hanya dengan bentuk json. Ikuti format ini tanpa penyimpangan.`
+  const jsonPrompt = `Jangan tambahkan penjelasan apapun, hanya dengan bentuk json. Ikuti format ini tanpa penyimpangan. Berikan pembahasan hanya 2 baris saja. Do not return any non-json text or numbering`
   const prompt = `${jumlahSoalPrompt} ${mapelPrompt} ${tingkatKesulitanPrompt} ${topikPrompt} ${jawabanPrompt} ${aturanPrompt} ${bahasaPrompt} ${jsonPrompt}`
+
+  // const jumlahSoalPrompt = `berikan ${jumlahSoal} soal ujian`
+  // const mapelPrompt = `untuk pelajaran ${mapel},`
+  // const tingkatKesulitanPrompt = `untuk ${tingkatKesulitan},`
+  // const topikPrompt = `dengan topik terkait: ${topik}`
+  // const jawabanPrompt = `gunakan format json ${haveOptions ? `{soal:"soal", pilihan:["A,B,C,D,E"], jawaban:"A.jawaban"}` : `{soal:"soal", jawaban:"jawaban"}`}.`
+  // const aturanPrompt = `${haveOptions ? "pilihan dan jawaban harus menyertakan huruf(A,B,C,D,E) dalam huruf kapital" : ""}. Jangan tambahkan awalan angka pada setiap soal. Jika terdapat soal cerita yang berhubungan, tuliskan cerita pada setiap soal. Soal cerita minimal 1 paragraf. Berikan soal singkat untuk matematika.`
+  // const bahasaPrompt = `Gunakan referensi kurikulum di Indonesia.`
+  // const jsonPrompt = `Jangan tambahkan penjelasan apapun, hanya dengan bentuk json. Ikuti format ini tanpa penyimpangan.`
+  // const prompt = `${jumlahSoalPrompt} ${mapelPrompt} ${tingkatKesulitanPrompt} ${topikPrompt} ${jawabanPrompt} ${aturanPrompt} ${bahasaPrompt} ${jsonPrompt}`
 
   const temperature = mapel.toLowerCase() === "matematika" ? 0.5 : 0.4
 
@@ -43,6 +53,13 @@ export const POST = async (req: Request) => {
     return new StreamingTextResponse(stream, {
       status: 200
     })
+
+    // return NextResponse.json({
+    //   success: true,
+    //   data: JSON.parse(stream as string)
+    // }, {
+    //   status: 200
+    // })
     // const stream = await OpenAIStreamMine(res)
     // return new Response(stream, {
     //   status: 200
