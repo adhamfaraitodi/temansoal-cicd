@@ -10,7 +10,7 @@ pipeline{
         stage("build"){
             steps{
                 echo"Building Images"
-                sh "docker build -t temansoal:latest ."
+                sh "docker build -t temansoal ."
             }
         }
     }
