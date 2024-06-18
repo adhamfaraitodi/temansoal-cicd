@@ -25,6 +25,25 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
+      - name: Load .env.example file
+        run: |
+          if [ -f .env.example ]; then
+            export $(cat .env.example | grep -v '#' | awk '/=/ {print $1}')
+          fi
+
+      - name: Export secrets as environment variables
+        run: |
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> $GITHUB_ENV
+          echo "FACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "FACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }}" >> $GITHUB_ENV
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+          echo "MIDTRANS_SERVER_KEY=${{ secrets.MIDTRANS_SERVER_KEY }}" >> $GITHUB_ENV
+          echo "MIDTRANS_SERVER_KEY_HASHED=${{ secrets.MIDTRANS_SERVER_KEY_HASHED }}" >> $GITHUB_ENV
+          echo "MIDTRANS_SERVER_URL=${{ secrets.MIDTRANS_SERVER_URL }}" >> $GITHUB_ENV
+          echo "MIDTRANS_COREAPI_URL=${{ secrets.MIDTRANS_COREAPI_URL }}" >> $GITHUB_ENV
+
       - name: Build Docker image
         run: docker build -t temansoal .
 
