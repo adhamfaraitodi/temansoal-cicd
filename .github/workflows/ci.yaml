@@ -42,13 +42,15 @@ jobs:
           echo "MIDTRANS_COREAPI_URL=${{ secrets.MIDTRANS_COREAPI_URL }}" >> $GITHUB_ENV
 
       - name: Build Docker image
-        run: docker build -t temansoal:latest .
+        run: |
+          docker build -t temansoal:latest .
+        continue-on-error: true
 
-      - name: Tag Docker image
-        run: docker tag temansoal:latest ${{ secrets.DOCKER_HUB_USERNAME }}/temansoal:latest
-
-      - name: Push Docker image to DockerHub
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/temansoal:latest
+      - name: Print Docker build logs
+        if: failure()
+        run: |
+          CONTAINER_ID=$(docker ps -a -q --filter "ancestor=temansoal" --filter "status=exited" --no-trunc | head -n 1)
+          docker logs $CONTAINER_ID
 
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
@@ -56,3 +58,9 @@ jobs:
           image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/temansoal:latest
           scan-type: image
           format: table
+
+      - name: Tag Docker image
+        run: docker tag temansoal:latest ${{ secrets.DOCKER_HUB_USERNAME }}/temansoal:latest
+
+      - name: Push Docker image to DockerHub
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/temansoal:latest
