@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -59,16 +59,3 @@ jobs:
 
       - name: Push Docker image to DockerHub
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/temansoal:latest
-
-      - name: Deploy to EC2
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          SSH_HOST: ${{ secrets.EC2_HOST }}
-          SSH_USER: ${{ secrets.EC2_USER }}
-        run: |
-          ssh -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" "$SSH_USER@$SSH_HOST" << 'EOF'
-            cd /path/to/your/docker-compose
-            docker-compose down
-            docker-compose pull
-            docker-compose up -d
-          EOF
