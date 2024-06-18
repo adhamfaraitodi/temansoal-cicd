@@ -44,7 +44,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t temansoal:latest .
-        continue-on-error: true
 
       - name: Print Docker build logs
         if: failure()
